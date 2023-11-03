@@ -23,8 +23,26 @@ const create = async (req, res) => {
   }
 };
 
-const update = (req, res) => {
-  res.send('Desde api/movies');
+const update = async (req, res) => {
+  const { id } = req.params;
+  const movie = await Movie.findById(id);
+
+  if (!movie) {
+    const error = new Error('Movie not found');
+    return res.status(404).json({ msg: error.message });
+  }
+
+  movie.name = req.body.name || movie.name;
+  movie.category = req.body.category || movie.category;
+  movie.description = req.body.description || movie.description;
+  movie.url = req.body.url || movie.url;
+
+  try {
+    const movieUpdated = await movie.save();
+    return res.json(movieUpdated);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const deleteOne = (req, res) => {
