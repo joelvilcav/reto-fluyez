@@ -11,6 +11,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import MovieEditForm from './MovieEditForm';
+import ConfirmDialog from './ConfirmDialog';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -45,8 +46,12 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const MoviesList = () => {
   const [movies, setMovies] = useState([]);
+
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editedMovie, setEditedMovie] = useState(null);
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [movieToDelete, setMovieToDelete] = useState(null);
 
   useEffect(() => {
     fetch('http://localhost:3000/api/movies')
@@ -66,30 +71,63 @@ const MoviesList = () => {
 
   const handleSaveEditedMovie = async (editedMovieData) => {
     try {
-        const response = await fetch(`http://localhost:3000/api/movies/${editedMovieData._id}`, {
+      const response = await fetch(
+        `http://localhost:3000/api/movies/${editedMovieData._id}`,
+        {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(editedMovieData),
-        });
-    
-        if (!response.ok) {
-          throw new Error('Error updating movie');
         }
-    
-        const updatedMovie = await response.json();
-    
-        setMovies((prevMovies) =>
-          prevMovies.map((movie) =>
-            movie._id === updatedMovie._id ? updatedMovie : movie
-          )
+      );
+
+      if (!response.ok) {
+        throw new Error('Error updating movie');
+      }
+
+      const updatedMovie = await response.json();
+
+      setMovies((prevMovies) =>
+        prevMovies.map((movie) =>
+          movie._id === updatedMovie._id ? updatedMovie : movie
+        )
+      );
+
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDeleteClick = (movie) => {
+    setMovieToDelete(movie);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (movieToDelete) {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/movies/${movieToDelete._id}`,
+          {
+            method: 'DELETE',
+          }
         );
-    
-        setIsEditDialogOpen(false);
+
+        if (response.ok) {
+          setMovies((prevMovies) =>
+            prevMovies.filter((movie) => movie._id !== movieToDelete._id)
+          );
+        } else {
+          throw new Error('Error deleting the movie');
+        }
       } catch (error) {
         console.error(error);
       }
+    }
+    setIsDeleteDialogOpen(false);
+    setMovieToDelete(null);
   };
 
   return (
@@ -126,7 +164,7 @@ const MoviesList = () => {
                   <button onClick={() => handleEditClick(movie)}>
                     <EditIcon />
                   </button>
-                  <button>
+                  <button onClick={() => handleDeleteClick(movie)}>
                     <DeleteIcon />
                   </button>
                 </StyledTableCell>
@@ -142,6 +180,14 @@ const MoviesList = () => {
           handleClose={handleEditDialogClose}
           movie={editedMovie}
           onSave={handleSaveEditedMovie}
+        />
+      )}
+
+      {movieToDelete && (
+        <ConfirmDialog
+          open={isDeleteDialogOpen}
+          handleClose={() => setIsDeleteDialogOpen(false)}
+          onConfirm={handleConfirmDelete}
         />
       )}
     </div>
