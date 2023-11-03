@@ -1,7 +1,8 @@
 import Movie from '../models/Movie.js';
 
-const getAll = (req, res) => {
-  res.send('Desde api/movies');
+const getAll = async (req, res) => {
+  const movies = await Movie.find();
+  res.json(movies);
 };
 
 const create = async (req, res) => {
