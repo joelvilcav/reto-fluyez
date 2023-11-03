@@ -45,8 +45,21 @@ const update = async (req, res) => {
   }
 };
 
-const deleteOne = (req, res) => {
-  res.send('Desde api/movies');
+const deleteOne = async (req, res) => {
+  const { id } = req.params;
+  const movie = await Movie.findById(id);
+
+  if (!movie) {
+    const error = new Error('Movie not found');
+    return res.status(404).json({ msg: error.message });
+  }
+
+  try {
+    await movie.deleteOne();
+    res.json({ msg: 'Movie deleted' });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export { getAll, create, update, deleteOne };
