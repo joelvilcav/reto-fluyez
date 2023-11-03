@@ -12,6 +12,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import MovieEditForm from './MovieEditForm';
 import ConfirmDialog from './ConfirmDialog';
+import MovieCreationForm from './MovieCreationForm';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -52,6 +53,8 @@ const MoviesList = () => {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [movieToDelete, setMovieToDelete] = useState(null);
+
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:3000/api/movies')
@@ -130,6 +133,34 @@ const MoviesList = () => {
     setMovieToDelete(null);
   };
 
+  const handleCreateClick = () => {
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleCreate = async (newMovieData) => {
+    try {
+        const response = await fetch('http://localhost:3000/api/movies', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newMovieData),
+        });
+    
+        if (response.ok) {
+          const newMovie = await response.json();
+    
+          setMovies((prevMovies) => [...prevMovies, newMovie]);
+    
+          setIsCreateDialogOpen(false);
+        } else {
+          throw new Error('Error al crear la película');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+  };
+
   return (
     <div>
       <TableContainer component={Paper}>
@@ -174,6 +205,8 @@ const MoviesList = () => {
         </Table>
       </TableContainer>
 
+      <button onClick={handleCreateClick}>Create Movie</button>
+
       {editedMovie && (
         <MovieEditForm
           open={isEditDialogOpen}
@@ -188,6 +221,14 @@ const MoviesList = () => {
           open={isDeleteDialogOpen}
           handleClose={() => setIsDeleteDialogOpen(false)}
           onConfirm={handleConfirmDelete}
+        />
+      )}
+
+      {isCreateDialogOpen && (
+        <MovieCreationForm
+          open={isCreateDialogOpen}
+          handleClose={() => setIsCreateDialogOpen(false)}
+          onCreate={handleCreate}
         />
       )}
     </div>
