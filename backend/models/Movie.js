@@ -6,6 +6,7 @@ const movieSchema = mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      unique: true,
     },
     category: {
       type: String,
@@ -24,4 +25,5 @@ const movieSchema = mongoose.Schema(
 );
 
 const Movie = mongoose.model('Movie', movieSchema);
+
 export default Movie;
