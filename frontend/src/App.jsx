@@ -1,5 +1,7 @@
+import MoviesList from './components/MoviesList';
+
 function App() {
-  return <>Hola Mundo</>;
+  return <MoviesList />;
 }
 
 export default App;
