@@ -9,6 +9,8 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import Button from '@mui/material/Button';
 
 import MovieEditForm from './MovieEditForm';
 import ConfirmDialog from './ConfirmDialog';
@@ -139,26 +141,26 @@ const MoviesList = () => {
 
   const handleCreate = async (newMovieData) => {
     try {
-        const response = await fetch('http://localhost:3000/api/movies', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newMovieData),
-        });
-    
-        if (response.ok) {
-          const newMovie = await response.json();
-    
-          setMovies((prevMovies) => [...prevMovies, newMovie]);
-    
-          setIsCreateDialogOpen(false);
-        } else {
-          throw new Error('Error al crear la película');
-        }
-      } catch (error) {
-        console.error(error);
+      const response = await fetch('http://localhost:3000/api/movies', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newMovieData),
+      });
+
+      if (response.ok) {
+        const newMovie = await response.json();
+
+        setMovies((prevMovies) => [...prevMovies, newMovie]);
+
+        setIsCreateDialogOpen(false);
+      } else {
+        throw new Error('Error al crear la película');
       }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -190,7 +192,17 @@ const MoviesList = () => {
                 <StyledTableCell align='center'>
                   {movie.description}
                 </StyledTableCell>
-                <StyledTableCell align='center'>{movie.url}</StyledTableCell>
+                <StyledTableCell align='center'>
+                  <Button
+                    variant='contained'
+                    color='success'
+                    onClick={() => {
+                      window.open(movie.url);
+                    }}
+                  >
+                    Go to your img! <ArrowForwardIcon />
+                  </Button>
+                </StyledTableCell>
                 <StyledTableCell align='center'>
                   <button onClick={() => handleEditClick(movie)}>
                     <EditIcon />
